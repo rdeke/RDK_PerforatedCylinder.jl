@@ -1,0 +1,52 @@
+using MPI
+MPI.Init()
+comm = MPI.COMM_WORLD
+using PerforatedCylinder
+
+# Paths
+const project_root = "../.."
+const data_dir = project_root * "/data"
+const OVERWRITE = true
+
+# Define cases
+using DelimitedFiles
+println("calling meshes...")
+dt_list = [20, 14, 8, 4, 2, 1, 0.5, 0.25] # allows 1Hz effects
+# cases are of shape "D$D2-Rt$Rt2-n$num_perforations2-β$β2-α$α2 --> add velo and dt
+# ------------------------------------------------------------------------------------------------------
+
+# Set filenames
+np = MPI.Comm_size(comm)
+case_id = parse(Int,ENV["CASE_ID"])
+casename = dt_list[case_id]
+mesh_file = readdlm("generated_meshes.txt")[1]*".msh"
+vtks_path = ENV["PerforatedCylinder_VTKS"]
+output_path = joinpath(vtks_path,"results_dt$casename")
+# if isdir(output_path)
+#   if MPI.Comm_rank(comm)==0
+#     println("Existing case. Exiting execution without computing.")
+#   end
+#   MPI.Finalize()
+#   return nothing
+# end
+MPI.Barrier(comm)
+if MPI.Comm_rank(comm)==0
+  rm(output_path,force=true, recursive=true)
+  mkdir(output_path)
+  println("Casename: $casename")
+  println("mesh_file: ", mesh_file)
+  println("output_path: ", output_path)
+  println("Running case $casename")
+end
+MPI.Barrier(comm)
+
+# Run case
+PerforatedCylinder.main_parallel(np;
+  mesh_file=mesh_file,
+  vtk_outpath=output_path,
+  Δt=0.05*casename,
+  tf=200,
+  Δtout=0.2
+)
+
+MPI.Finalize()

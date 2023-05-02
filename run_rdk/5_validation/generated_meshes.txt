@@ -1,0 +1,3 @@
+D10.0-Rt100.0-n0-beta0.5-alfa0-Closed
+D10.0-Rt50.0-n12-beta0.5-alfa0-Star
+D1.0-Rt20.0-n12-beta0.5-alfa0-Oriol
