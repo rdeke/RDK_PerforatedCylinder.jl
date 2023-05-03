@@ -3,7 +3,7 @@
 #
 #SBATCH --job-name="perf_cylinder"
 #SBATCH --partition=thin
-#SBATCH --time=2-00:00:00
+#SBATCH --time=0-03:00:00
 #SBATCH -n 12
 #SBATCH -o stdout/slurm-%j-%4t.out
 #SBATCH -e stdout/slurm-%j-%4t.err
