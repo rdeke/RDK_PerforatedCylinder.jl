@@ -19,11 +19,7 @@ mesh_cases = readdlm("generated_meshes.txt")
 np = MPI.Comm_size(comm)
 case_id = parse(Int,ENV["CASE_ID"])
 casename = mesh_cases[case_id]
-if case_id <= 11 
-  mesh_file = casename * ".msh"
-else
-  mesh_file = mesh_cases[1]  * ".msh"
-end
+mesh_file = casename * ".msh"
 vtks_path = ENV["PerforatedCylinder_VTKS"]
 output_path = joinpath(vtks_path,"results_"*casename)
 # if isdir(output_path)
@@ -44,6 +40,7 @@ if MPI.Comm_rank(comm)==0
 end
 MPI.Barrier(comm)
 
+t_initial = time()
 PerforatedCylinder.main_parallel(np;
   mesh_file=mesh_file,
   vtk_outpath=output_path,
@@ -51,5 +48,10 @@ PerforatedCylinder.main_parallel(np;
   tf=1,
   Δtout=0.2,
 )
+
+t_final = time()
+ElapsedTime = t_final - t_initial
+using DelimitedFiles
+writedlm("SingleSecondExecutionTime_np$np.txt", ElapsedTime)
 
 MPI.Finalize()
