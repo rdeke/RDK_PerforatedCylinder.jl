@@ -1,4 +1,3 @@
-
 #!/bin/sh
 #
 #SBATCH --job-name="perf_cylinder"
@@ -11,4 +10,4 @@
 source ../../compile_snellius/modules_snellius.sh
 export CASE_ID=$1
 echo "Starting case: $CASE_ID"
-mpiexecjl --project=../ -n 12 julia -J ../../PerforatedCylinder_parallel.so -O3 --check-bounds=no -e 'include("snel_cfd.jl")'
+mpiexecjl --project=../../ -n 12 julia -J ../../PerforatedCylinder_parallel.so -O0 --check-bounds=no -e 'include("snel_cfd.jl")'

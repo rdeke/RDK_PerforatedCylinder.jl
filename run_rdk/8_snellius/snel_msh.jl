@@ -8,8 +8,8 @@ const OVERWRITE = true
 # Define cases
 println("Generating meshes...")
 n1 = 3:30           # 28 samples
-β = 0.1:0.05:0.9    # 16 samples --> 448 samples total
-n2 = 3:12           # 10 samples 
+β = 0.1:0.05:0.85    # 16 samples --> 448 samples total
+n2 = 3:12           # 10 samples
 α = 0:0.05:0.5      # 10 samples --> 100 samples total   --> 548 samples
 
 # Changed default lengths

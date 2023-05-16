@@ -8,4 +8,5 @@
 #SBATCH -e stdout/generate_meshes.err
 
 source ../../compile_snellius/modules_snellius.sh
-mpiexecjl --project=../ -n 1 julia -J ../../PerforatedCylinder_parallel.so -O3 --check-bounds=no --color=yes -e 'include("snel_msh.jl")'
+#mpiexecjl --project=../../ -n 1 julia -J ../../PerforatedCylinder_parallel.so -O3 --check-bounds=no --color=yes -e 'include("snel_msh.jl")'
+julia --project=../../ -O3 --check-bounds=no --color=yes -e 'include("snel_msh.jl")'

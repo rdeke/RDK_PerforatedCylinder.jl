@@ -35,6 +35,7 @@ function generate_meshes(; nD=[10], nRt=[100], nperf=[12], nβ=[0.5], nα=[0], n
                 push!(cases,replace(filename, r".msh"=>""))
 
                 if do_mesh==true
+                  println(filename)
                   create_mesh(filename=filename, D=D, R_t=Rt, num_perforations=num_perforations, R_β=β, α=360/num_perforations*α,
                               R_L=R_L, R_Cx=R_L-5.5)
                 end
@@ -58,19 +59,23 @@ options_mumps = "-snes_type newtonls \
 -ksp_converged_reason -ksp_type preonly \
 -pc_type lu \
 -pc_factor_mat_solver_type mumps \
--mat_mumps_icntl_7 0"
+-mat_mumps_icntl_4 1 \
+-mat_mumps_icntl_7 0 \
+-mat_mumps_icntl_14 50000 \
+-mat_mumps_icntl_24 1 \
+-mat_mumps_cntl_3 1.0e-10"
 
 
 function main_parallel(np;
-  mesh_file="tmp_mesh_coarse.msh", # was originally test_conformal_mesh.msh 
-  vtk_outpath="tmp_mesh_coarse",
+  mesh_file="tmp_coarse.msh", # was originally test_conformal_mesh.msh
+  vtk_outpath="tmp_coarse",
   Vinf=1,
   Δt=0.1,
   tf=1.0,
   Δtout=0.5,
-  output_path=joinpath(ENV["PerforatedCylinder_DATA"],"vtk"))
+  output_path=ENV["PerforatedCylinder_VTKs"])
 
-  filename = replace(mesh_file, r".msh"=>"")
+  filename = replace(mesh_file, ".msh"=>"")
   run_name = filename*"-Vinf$Vinf-dt$Δt"
 
   current_path = pwd()

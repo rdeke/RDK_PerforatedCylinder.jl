@@ -1,7 +1,7 @@
 function create_mesh(;
   filename="default_mesh",
-  D = 10, 
-  R_t = 100, 
+  D = 10,
+  R_t = 100,
   num_perforations = 12,
   R_β = 0.5,
   # Domain Parameters
@@ -12,7 +12,7 @@ function create_mesh(;
   # Perforations specials
   α = 0,
   # Mesh Parameters
-  h_fine = 0.25, # Size at wall
+  h_fine = 0.2, # Size at wall
   f_ref = 8, # R_h_fine = R_h_coarse*f_ref,
   exp_wake = 2,
   R_wake = 2.0)
@@ -33,6 +33,7 @@ function create_mesh(;
   θ = R_β*ϕ
   ## To be sure
   h_fine = Float64(h_fine)*D/10 # To normalize it for D=10 average case
+  h_coarse = h_fine*f_ref
 
   # Initialize
   gmsh.initialize()
@@ -50,7 +51,7 @@ function create_mesh(;
   w0 = w_center*(2/R_t)
   l = R+2*t # Total length
   perforations = []
-  for i in 1:num_perforations  
+  for i in 1:num_perforations
 
     # Large holes
     tmp1a = gmsh.model.occ.addRectangle(Cx-l,Cy-w/2,0,l,w)
@@ -132,21 +133,27 @@ function create_mesh(;
 
   # Define mesh size
   function meshSizeCallback(dim,tag,x,y,z,lc)
-
-    r_prime = (√((x-Cx)^2+(y-Cy)^2) - R) / R
-    # Outside left, area 1
-    if x < Cx && r_prime > 0.1
-      return (1+r_prime*f_ref/((Cx-r0)/(R*R_wake)))*h_fine/2
-    # Outside right, area 2
-    elseif x >= Cx && r_prime > 0.1 && abs(y-Cy) <= R*R_wake
-      return h_fine + ((((1+r_prime*f_ref/(1+(x-Cx)/D))*h_fine)-h_fine)/R*(abs(y-Cy)/(R*R_wake))^exp_wake)*log(3,x/r0)
-    # Inside, area 3
-    elseif r_prime <= 0.1
-      return h_fine/2
+    if dim == 1 && (tag in monopile_line_tags)
+      return h_fine
     else
-      return h_fine*f_ref
+      r_prime = (√((x-Cx)^2+(y-Cy)^2) - R) / R
+      # Outside left, area 1
+      if x < Cx && r_prime > 0.3
+        return (1+r_prime*f_ref/((Cx-r0)/(R*R_wake)))*h_fine/2
+      # Outside right, area 2
+      elseif x >= Cx && r_prime > 0.3 && abs(y-Cy) <= R*R_wake
+        return 1.3*h_fine + 2*((((1+r_prime*f_ref/(1+(x-Cx)/D))*h_fine)-h_fine)/R*(abs(y-Cy)/(R*R_wake))^exp_wake)*log(3,x/r0)
+      # Inside, area 3
+      elseif 0.15 < abs(r_prime) <= 0.3
+        return h_fine*1.3
+      elseif -0.15 < r_prime <= 0.15
+        return h_fine
+      elseif r_prime < -0.3
+        return 2*h_fine
+      else
+        return h_coarse
+      end
     end
-
   end
 
   gmsh.model.mesh.setSizeCallback(meshSizeCallback)
