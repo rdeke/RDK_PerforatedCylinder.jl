@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="generate_meshes"
 #SBATCH -p thin
-#SBATCH -t 01:00:00
+#SBATCH -t 1-00:00:00
 #SBATCH -n 1
 #SBATCH -o stdout/generate_meshes.out
 #SBATCH -e stdout/generate_meshes.err
