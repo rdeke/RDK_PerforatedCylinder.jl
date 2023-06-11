@@ -287,6 +287,7 @@ $$
         -\nabla \textbf{u} = 0, & \text{in } \Omega
     \end{cases}
 $$
+
 where $\textbf{u}$ denotes the velocity field, 2 dimensional, and $p$ denotes the pressure field. $\mu$ is the in-compressible fluid viscosity. Multiplying the test function $v \in \textbf{H}_0^1(\Omega)$ to the former momentum equation on the top, and ding the same for the continuity equation on the bottom with $q \in L^2(\Omega)$, we can find the weak form problem through integration by parts. The problem then reads: <br>
 
 Find $\textbf{u} \in \textbf{H}_0^1(\Omega)$ and $p \in L^2(\Omega)$ such that
@@ -297,6 +298,7 @@ $$
         - (\nabla \textbf{u}, q) = 0, & \forall q \in L^2(\Omega)
     \end{cases}
 $$
+
 Finally this can be combined into the bilinear form:
 
 $$
@@ -309,13 +311,17 @@ $$
 Rewriting this such that the formulation includes the outflow boundary condition and the non-forced fluid flow inside the domain, and then rewriting the inputs so that the form is equal to the one implemented in Gridap.jl, the problem to be solved becomes:
 
 Find $\textbf{u} \in \textbf{H}_0^1(\Omega)$ and $p \in L^2(\Omega)$ such that
+
 $$
     a\left(\left(u,p\right), \left(v,q\right)\right) = \int\left(\epsilon\left(v\right) \odot \left(\sigma_{dev_f} \cdot \epsilon\left(u\right)\right) - \left(\nabla \cdot v\right) \cdot p + q \cdot \left(\nabla \cdot u\right)\right)d\Omega_f
 $$
+
 with $\sigma_{dev_f}\left(\epsilon\right) = 2 \cdot \nu_f \cdot \epsilon$ and $\epsilon$ the symmetric gradient of the field; and such that
+
 $$
     l\left(\left(v, q\right)\right) = \int\left( 0 \right) d\Omega_f
 $$
+
 in which the $0$ indicates a free fluid flow inside the domain.
 
 This is done through the definition of the weak form:
@@ -363,18 +369,22 @@ vh₀ = interpolate_everywhere((u0(0),0.0),X(0.0))
 ### 2.5 Define the weak form
 
 The problem formulation starts with the Navier-Stokes equation:
+
 $$
     \begin{cases}
         \partial_t\textbf{u} -\nu \Delta \textbf{u} + \textbf{u}\cdot\nabla\textbf{u} + \nabla p = \textbf{f}, & in \Omega \times (0, T) \\
         -\nabla \textbf{u} = 0, & in \Omega
     \end{cases}
 $$
+
 with $\nu$ the kinematic viscosity. Using the same space definitions as for the Stokes initialization. the weak form with a residual notation then reads: <br>
 
 Find $\textbf{u} \in \textbf{H}_0^1(\Omega)$ and $p \in L^2(\Omega)$ such that
+
 $$
         (\partial_t\textbf{u},\textbf{v}) + B(\textbf{u}; [\textbf{u},p], [\textbf{v},q]) = \langle \textbf{f}, \textbf{v} \rangle \forall v \in \textbf{H}_0^1(\Omega) \cap \forall q \in L^2(\Omega)
 $$
+
 where $B(\textbf{a}; [\textbf{u},p], [\textbf{v},q]) = \nu (\nabla\textbf{u}, \nabla\textbf{v}) + c(\textbf{a}, \textbf{u}, \textbf{v}) - (p, \nabla\cdot\textbf{v}) + (q,\nabla\cdot\textbf{u})$. <br>
 
 The final step is to add a stabilizing closure model:
@@ -449,9 +459,11 @@ xₜ = solve(ode_solver,op,(xh₀,vh₀),t₀,tf)
 
 ## 4. Do post processing
 The processes above are compiled as a single function. While calculating each time step, the pressure and velocity are stored. The intermediate numerical artefacts $u_{nh}$ and $\eta_{nh}$ are stored too. The pressure and velocity fields are used to determine the drag and lift force on the perforated cylinder through:
+
 $$
     \vec{F} = \left(\sum \int \left(\left(n_{\Gamma} \cdot  \sigma_{dev_f}\left(\epsilon\left(u\right)\right)\right) - p \cdot n_{\Gamma}\right) \cdot d\Gamma_s \right) \cdot \rho
 $$
+
 The force vector contains then the total drag and lift components of the cylinder. We use some relay-parameters since the parallel use of global variables gave some discrepancies in the nested loops. Additionally these calculations contain the fluid domain, so integration of pressures determines the forces as experienced by the fluid. To get the forces on the cylinder we add a minus sign.
 
 ```julia
