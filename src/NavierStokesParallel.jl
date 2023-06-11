@@ -186,8 +186,9 @@ function run_test_parallel(parts,run_name,mesh_file,vtk_outpath,Vinf,Δt,tf,Δto
   #nls = NLSolver(ls,show_trace=true,method=:newton,iterations=10)
 
   # ODE solver
+  t₀ = 0.0 # start [s]
+  ρ∞ = 0.5
   ode_solver = GeneralizedAlpha(nls,Δt,ρ∞)
-
   xₜ = solve(ode_solver,op,(xh₀,vh₀),t₀,tf)
 
   # Postprocess
